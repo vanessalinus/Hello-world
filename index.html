@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Logistics Management Software</title>
+    <link rel="stylesheet" href="./src/styles.css">
+  </head>
+  <body>
+    <header class="hero">
+      <nav>
+        <div class="brand">
+          <span class="brand-mark">LM</span>
+          <span>Logistics Manager</span>
+        </div>
+        <button id="reset-data" class="ghost-button" type="button">Reset demo data</button>
+      </nav>
+      <section class="hero-content">
+        <div>
+          <p class="eyebrow">Control tower dashboard</p>
+          <h1>Plan shipments, allocate fleet capacity, and monitor inventory risk.</h1>
+          <p>
+            A lightweight logistics management workspace for dispatchers and operations teams.
+          </p>
+        </div>
+        <form id="shipment-form" class="shipment-form">
+          <h2>Create shipment</h2>
+          <label>
+            Customer
+            <input name="customer" type="text" placeholder="Acme Retail" required>
+          </label>
+          <label>
+            Origin warehouse
+            <select id="origin" name="origin" required></select>
+          </label>
+          <label>
+            Destination
+            <input name="destination" type="text" placeholder="Chicago, IL" required>
+          </label>
+          <div class="form-grid">
+            <label>
+              Distance (km)
+              <input name="distanceKm" type="number" min="1" step="1" value="500" required>
+            </label>
+            <label>
+              Weight (kg)
+              <input name="weightKg" type="number" min="1" step="1" value="2400" required>
+            </label>
+          </div>
+          <label>
+            Priority
+            <select name="priority" required>
+              <option value="economy">Economy</option>
+              <option value="standard" selected>Standard</option>
+              <option value="expedited">Expedited</option>
+            </select>
+          </label>
+          <button type="submit">Plan shipment</button>
+        </form>
+      </section>
+    </header>
+
+    <main>
+      <section id="metric-cards" class="metrics" aria-label="Operations metrics"></section>
+
+      <section class="workspace">
+        <article class="table-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Shipments</p>
+              <h2>Dispatch board</h2>
+            </div>
+            <input id="shipment-search" type="search" placeholder="Search shipments">
+          </div>
+          <div class="table-scroll">
+            <table>
+              <thead>
+                <tr>
+                  <th>Shipment</th>
+                  <th>Origin</th>
+                  <th>Destination</th>
+                  <th>Weight</th>
+                  <th>Distance</th>
+                  <th>Priority</th>
+                  <th>Status</th>
+                  <th>Vehicle</th>
+                  <th>ETA</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="shipment-table-body"></tbody>
+            </table>
+          </div>
+        </article>
+
+        <aside class="activity-panel">
+          <p class="eyebrow">Activity</p>
+          <h2>Dispatcher log</h2>
+          <ul id="dispatcher-log"></ul>
+        </aside>
+      </section>
+
+      <section class="panels">
+        <article>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Fleet</p>
+              <h2>Vehicle capacity</h2>
+            </div>
+          </div>
+          <div id="fleet-grid" class="card-grid"></div>
+        </article>
+
+        <article>
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Warehouses</p>
+              <h2>Storage utilization</h2>
+            </div>
+          </div>
+          <div id="warehouse-grid" class="card-grid"></div>
+        </article>
+
+        <article class="alerts-panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Inventory</p>
+              <h2>Reorder alerts</h2>
+            </div>
+          </div>
+          <ul id="inventory-alerts"></ul>
+        </article>
+      </section>
+    </main>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

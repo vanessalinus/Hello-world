@@ -1,0 +1,19 @@
+{
+  "name": "logistics-management-software",
+  "version": "1.0.0",
+  "description": "A browser-based logistics management dashboard for shipments, fleet capacity, warehouses, and inventory risk.",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/server.js",
+    "test": "node --test"
+  },
+  "keywords": [
+    "logistics",
+    "shipments",
+    "fleet",
+    "warehouse",
+    "inventory"
+  ],
+  "author": "",
+  "license": "MIT"
+}
