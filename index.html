@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>RouteFlow Logistics Suite</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">Operations Command</p>
+          <h1>RouteFlow</h1>
+          <p class="sidebar-copy">
+            Logistics management software for orders, shipments, fleet, and
+            warehouse operations.
+          </p>
+        </div>
+
+        <nav class="sidebar-nav">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#orders">Orders</a>
+          <a href="#shipments">Shipments</a>
+          <a href="#fleet">Fleet</a>
+          <a href="#warehouses">Warehouses</a>
+          <a href="#activity">Activity</a>
+        </nav>
+
+        <div class="sidebar-actions">
+          <button id="resetDataButton" class="secondary-button">
+            Reset demo data
+          </button>
+        </div>
+      </aside>
+
+      <main class="main-content">
+        <header class="hero">
+          <div>
+            <p class="eyebrow">Live control tower</p>
+            <h2>Logistics decisions in one workspace</h2>
+            <p class="hero-copy">
+              Monitor critical KPIs, dispatch shipments, allocate vehicles, and
+              keep warehouses balanced with a single operational view.
+            </p>
+          </div>
+
+          <div class="hero-stats">
+            <div>
+              <span>Response target</span>
+              <strong>&lt; 30 min</strong>
+            </div>
+            <div>
+              <span>Coverage</span>
+              <strong>Orders to delivery</strong>
+            </div>
+          </div>
+        </header>
+
+        <section id="dashboard" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Dashboard</p>
+              <h3>Operational overview</h3>
+            </div>
+            <p class="panel-copy">
+              Snapshots update automatically as your team creates and moves
+              orders.
+            </p>
+          </div>
+
+          <div id="kpiGrid" class="kpi-grid"></div>
+
+          <div class="grid two-columns">
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Exceptions</p>
+                  <h4>Priority alerts</h4>
+                </div>
+              </div>
+              <div id="alertsList" class="stack"></div>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <p class="eyebrow">Delivery board</p>
+                  <h4>Upcoming ETA schedule</h4>
+                </div>
+              </div>
+              <div id="etaBoard" class="stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="orders" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Orders</p>
+              <h3>Create and track fulfillment demand</h3>
+            </div>
+            <p class="panel-copy">
+              Capture customer requests with destination, priority, and cargo
+              value.
+            </p>
+          </div>
+
+          <div class="grid two-columns">
+            <article class="card">
+              <div class="card-header">
+                <h4>New order</h4>
+              </div>
+              <form id="orderForm" class="form-grid">
+                <label>
+                  Customer
+                  <input name="customer" type="text" placeholder="Acme Retail" required />
+                </label>
+                <label>
+                  Origin
+                  <input name="origin" type="text" placeholder="Dallas, TX" required />
+                </label>
+                <label>
+                  Destination
+                  <input
+                    name="destination"
+                    type="text"
+                    placeholder="Atlanta, GA"
+                    required
+                  />
+                </label>
+                <label>
+                  Priority
+                  <select name="priority">
+                    <option value="Low">Low</option>
+                    <option value="Normal" selected>Normal</option>
+                    <option value="High">High</option>
+                    <option value="Critical">Critical</option>
+                  </select>
+                </label>
+                <label>
+                  Cargo value
+                  <input name="value" type="number" min="0" step="100" value="5000" required />
+                </label>
+                <label>
+                  Requested ship date
+                  <input name="shipDate" type="date" required />
+                </label>
+                <button type="submit" class="primary-button">Create order</button>
+              </form>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <h4>Order queue</h4>
+                </div>
+                <span id="orderCount" class="pill"></span>
+              </div>
+              <div id="ordersList" class="stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="shipments" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Shipments</p>
+              <h3>Dispatch and update delivery progress</h3>
+            </div>
+            <p class="panel-copy">
+              Create shipping movements tied to an order, vehicle, and warehouse.
+            </p>
+          </div>
+
+          <div class="grid two-columns">
+            <article class="card">
+              <div class="card-header">
+                <h4>New shipment</h4>
+              </div>
+              <form id="shipmentForm" class="form-grid">
+                <label>
+                  Shipment reference
+                  <input name="reference" type="text" placeholder="SHP-2048" required />
+                </label>
+                <label>
+                  Linked order
+                  <select id="shipmentOrderId" name="orderId" required></select>
+                </label>
+                <label>
+                  Assigned vehicle
+                  <select id="shipmentVehicleId" name="vehicleId" required></select>
+                </label>
+                <label>
+                  Departure warehouse
+                  <select id="shipmentWarehouseId" name="warehouseId" required></select>
+                </label>
+                <label>
+                  ETA
+                  <input name="eta" type="date" required />
+                </label>
+                <label>
+                  Status
+                  <select name="status">
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Delayed">Delayed</option>
+                  </select>
+                </label>
+                <button type="submit" class="primary-button">Create shipment</button>
+              </form>
+            </article>
+
+            <article class="card">
+              <div class="card-header split">
+                <div>
+                  <h4>Shipment board</h4>
+                </div>
+                <div class="toolbar">
+                  <select id="shipmentStatusFilter">
+                    <option value="All">All statuses</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                  <input
+                    id="shipmentSearch"
+                    type="search"
+                    placeholder="Search reference, destination..."
+                  />
+                </div>
+              </div>
+              <div id="shipmentsList" class="stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="fleet" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Fleet</p>
+              <h3>Allocate transport capacity</h3>
+            </div>
+            <p class="panel-copy">
+              Maintain available vehicles and adjust operating status in real
+              time.
+            </p>
+          </div>
+
+          <div class="grid two-columns">
+            <article class="card">
+              <div class="card-header">
+                <h4>Add vehicle</h4>
+              </div>
+              <form id="vehicleForm" class="form-grid">
+                <label>
+                  Vehicle name
+                  <input name="name" type="text" placeholder="Truck 14" required />
+                </label>
+                <label>
+                  Type
+                  <select name="type">
+                    <option value="Truck">Truck</option>
+                    <option value="Van">Van</option>
+                    <option value="Container">Container</option>
+                    <option value="Air Freight">Air Freight</option>
+                  </select>
+                </label>
+                <label>
+                  Capacity
+                  <input name="capacity" type="number" min="1" step="1" value="18" required />
+                </label>
+                <label>
+                  Status
+                  <select name="status">
+                    <option value="Available">Available</option>
+                    <option value="Assigned">Assigned</option>
+                    <option value="Maintenance">Maintenance</option>
+                  </select>
+                </label>
+                <button type="submit" class="primary-button">Add vehicle</button>
+              </form>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <h4>Fleet roster</h4>
+                </div>
+                <span id="vehicleCount" class="pill"></span>
+              </div>
+              <div id="fleetList" class="stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="warehouses" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Warehouses</p>
+              <h3>Monitor facility utilization</h3>
+            </div>
+            <p class="panel-copy">
+              Balance inventory throughput and identify sites near capacity.
+            </p>
+          </div>
+
+          <div class="grid two-columns">
+            <article class="card">
+              <div class="card-header">
+                <h4>Add warehouse</h4>
+              </div>
+              <form id="warehouseForm" class="form-grid">
+                <label>
+                  Warehouse name
+                  <input name="name" type="text" placeholder="East Hub" required />
+                </label>
+                <label>
+                  Location
+                  <input name="location" type="text" placeholder="Atlanta, GA" required />
+                </label>
+                <label>
+                  Capacity
+                  <input name="capacity" type="number" min="1" step="10" value="500" required />
+                </label>
+                <label>
+                  Utilization
+                  <input
+                    name="utilization"
+                    type="number"
+                    min="0"
+                    step="1"
+                    value="250"
+                    required
+                  />
+                </label>
+                <button type="submit" class="primary-button">Add warehouse</button>
+              </form>
+            </article>
+
+            <article class="card">
+              <div class="card-header">
+                <div>
+                  <h4>Warehouse network</h4>
+                </div>
+                <span id="warehouseCount" class="pill"></span>
+              </div>
+              <div id="warehousesList" class="stack"></div>
+            </article>
+          </div>
+        </section>
+
+        <section id="activity" class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Activity</p>
+              <h3>Operations event feed</h3>
+            </div>
+            <p class="panel-copy">
+              Every action in the workspace is logged so teams can coordinate
+              decisions.
+            </p>
+          </div>
+          <article class="card">
+            <div id="activityFeed" class="stack"></div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
