@@ -1,0 +1,16 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:/app/data/prod.db
+      - NEXT_PUBLIC_SITE_URL=http://localhost:3000
+      - NEXT_PUBLIC_CONTACT_EMAIL=info@levivainvestments.co.tz
+      - NEXT_PUBLIC_CONTACT_PHONE=+255758996047
+      - NEXT_PUBLIC_WHATSAPP_NUMBER=255758996047
+    volumes:
+      - leviva-data:/app/data
+
+volumes:
+  leviva-data:

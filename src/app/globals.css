@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --color-safari-50: #f6f5f0;
+  --color-safari-100: #ebe8dc;
+  --color-safari-200: #d6d0b8;
+  --color-safari-300: #bdb38f;
+  --color-safari-400: #a6966e;
+  --color-safari-500: #8f7d52;
+  --color-safari-600: #7a6644;
+  --color-safari-700: #625037;
+  --color-safari-800: #524330;
+  --color-safari-900: #473a2b;
+  --color-safari-950: #261f16;
+
+  --color-terracotta-400: #e07a4d;
+  --color-terracotta-500: #d4623a;
+  --color-terracotta-600: #c04e2a;
+
+  --color-forest-600: #2d5a3d;
+  --color-forest-700: #234830;
+  --color-forest-800: #1c3a27;
+
+  --font-display: "Georgia", "Times New Roman", serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-safari-50 text-safari-950 antialiased;
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.gradient-hero {
+  background: linear-gradient(
+    135deg,
+    rgba(38, 31, 22, 0.92) 0%,
+    rgba(45, 90, 61, 0.75) 50%,
+    rgba(192, 78, 42, 0.55) 100%
+  );
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
