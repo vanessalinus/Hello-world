@@ -378,7 +378,7 @@ function Reviews() {
                 ))}
               </div>
               <blockquote className="mt-5 text-lg font-bold leading-8 text-[#0b3b25]">
-                "{testimonial.quote}"
+                &ldquo;{testimonial.quote}&rdquo;
               </blockquote>
               <figcaption className="mt-5 text-sm font-semibold text-stone-600">
                 {testimonial.guest} - {testimonial.market}
