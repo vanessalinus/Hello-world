@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - DATABASE_URL=file:./prisma/dev.db
+      - NODE_ENV=production
+      - NEXT_PUBLIC_SITE_URL=https://levivainvestments.co.tz
+      - NEXT_PUBLIC_WHATSAPP=+255758996047
+      - NEXT_PUBLIC_PHONE=+255758996047
+      - NEXT_PUBLIC_EMAIL=info@levivainvestments.co.tz
+    volumes:
+      - sqlite-data:/app/prisma
+    restart: unless-stopped
+
+volumes:
+  sqlite-data:
