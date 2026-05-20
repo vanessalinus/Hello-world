@@ -1,0 +1,34 @@
+body {
+  background-color: #f4f7fb;
+}
+
+.stat-card {
+  border: 0;
+  box-shadow: 0 4px 14px rgba(32, 56, 85, 0.1);
+}
+
+.stat-card .label {
+  color: #6c757d;
+  font-size: 0.85rem;
+  margin-bottom: 0.25rem;
+}
+
+.badge.shipment-pending {
+  background: #6c757d;
+}
+
+.badge.shipment-in_transit {
+  background: #0d6efd;
+}
+
+.badge.shipment-delivered {
+  background: #198754;
+}
+
+.badge.shipment-delayed {
+  background: #dc3545;
+}
+
+.badge.shipment-cancelled {
+  background: #212529;
+}

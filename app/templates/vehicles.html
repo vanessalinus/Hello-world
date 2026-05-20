@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-3">Vehicles</h1>
+
+<div class="row g-4">
+  <div class="col-lg-4">
+    <div class="card p-3">
+      <h5>Add Vehicle</h5>
+      <form method="post">
+        <div class="mb-2">
+          <label class="form-label">Plate Number</label>
+          <input class="form-control" name="plate_number" required />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Type</label>
+          <input class="form-control" name="vehicle_type" required />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Capacity (kg)</label>
+          <input class="form-control" type="number" min="1" step="0.01" name="capacity_kg" required />
+        </div>
+        <div class="mb-2">
+          <label class="form-label">Status</label>
+          <select class="form-select" name="status">
+            {% for status in statuses %}
+            <option value="{{ status }}">{{ status }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-primary w-100 mt-2" type="submit">Add Vehicle</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="col-lg-8">
+    <div class="card">
+      <div class="table-responsive">
+        <table class="table table-striped mb-0">
+          <thead>
+            <tr>
+              <th>Plate Number</th>
+              <th>Type</th>
+              <th>Capacity</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for vehicle in vehicles %}
+            <tr>
+              <td>{{ vehicle.plate_number }}</td>
+              <td>{{ vehicle.vehicle_type }}</td>
+              <td>{{ "%.2f"|format(vehicle.capacity_kg) }} kg</td>
+              <td>{{ vehicle.status }}</td>
+            </tr>
+            {% else %}
+            <tr>
+              <td colspan="4" class="text-center py-4">No vehicles available.</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block content %}
+<h1 class="mb-4">Logistics Dashboard</h1>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4 col-lg-2">
+    <div class="card stat-card">
+      <div class="card-body">
+        <p class="label">Total Shipments</p>
+        <h4>{{ stats.shipments_total }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-lg-2">
+    <div class="card stat-card">
+      <div class="card-body">
+        <p class="label">In Transit</p>
+        <h4>{{ stats.shipments_in_transit }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4 col-lg-2">
+    <div class="card stat-card">
+      <div class="card-body">
+        <p class="label">Delivered</p>
+        <h4>{{ stats.shipments_delivered }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <p class="label">Active Drivers</p>
+        <h4>{{ stats.active_drivers }}</h4>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-6 col-lg-3">
+    <div class="card stat-card">
+      <div class="card-body">
+        <p class="label">Available Vehicles</p>
+        <h4>{{ stats.available_vehicles }}</h4>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex justify-content-between align-items-center">
+    <strong>Recent Shipments</strong>
+    <a class="btn btn-sm btn-primary" href="{{ url_for('logistics.create_shipment') }}">
+      Create Shipment
+    </a>
+  </div>
+  <div class="table-responsive">
+    <table class="table table-striped mb-0">
+      <thead>
+        <tr>
+          <th>Tracking</th>
+          <th>Customer</th>
+          <th>Route</th>
+          <th>Status</th>
+          <th>ETA</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for shipment in recent_shipments %}
+        <tr>
+          <td>{{ shipment.tracking_number }}</td>
+          <td>{{ shipment.customer_name }}</td>
+          <td>{{ shipment.origin }} → {{ shipment.destination }}</td>
+          <td><span class="badge shipment-{{ shipment.status }}">{{ shipment.status }}</span></td>
+          <td>{{ shipment.eta.strftime("%Y-%m-%d %H:%M") }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-center py-4">No shipments created yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}
