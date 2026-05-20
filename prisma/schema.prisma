@@ -1,0 +1,32 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum InquiryType {
+  BOOKING
+  CONTACT
+}
+
+model Inquiry {
+  id              String      @id @default(cuid())
+  type            InquiryType @default(BOOKING)
+  fullName        String
+  email           String
+  phone           String?
+  departureMarket String
+  destination     String
+  travelMonth     String?
+  travelers       Int?
+  budget          String?
+  message         String
+  createdAt       DateTime    @default(now())
+
+  @@index([createdAt])
+  @@index([destination])
+  @@index([departureMarket])
+}
