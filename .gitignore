@@ -9,4 +9,5 @@ build
 coverage
 .vercel
 .netlify
+*.tsbuildinfo
 DS_Store

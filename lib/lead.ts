@@ -26,7 +26,7 @@ export const bookingSchema = z.object({
   tripStyle: requiredText("Trip style", 80),
   message: optionalText(),
   referralSource: optionalText(120),
-  company: z.string().trim().max(0).optional(),
+  company: z.string().trim().optional(),
 });
 
 export const contactSchema = z.object({
@@ -34,7 +34,7 @@ export const contactSchema = z.object({
   email: z.email("Please enter a valid email address.").trim().toLowerCase(),
   phone: optionalText(40),
   message: requiredText("Message", 2000),
-  company: z.string().trim().max(0).optional(),
+  company: z.string().trim().optional(),
 });
 
 export type BookingLead = z.infer<typeof bookingSchema>;
