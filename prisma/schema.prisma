@@ -1,0 +1,156 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Tour {
+  id            String    @id @default(cuid())
+  slug          String    @unique
+  title         String
+  subtitle      String?
+  description   String    @db.Text
+  duration      Int       // days
+  groupSize     Int       @default(12)
+  price         Float
+  currency      String    @default("USD")
+  category      TourCategory
+  difficulty    Difficulty @default(MODERATE)
+  destinations  String[]
+  highlights    String[]
+  inclusions    String[]
+  exclusions    String[]
+  itinerary     Json      // Array of {day, title, description, meals, accommodation}
+  images        String[]
+  coverImage    String
+  featured      Boolean   @default(false)
+  active        Boolean   @default(true)
+  rating        Float     @default(0)
+  reviewCount   Int       @default(0)
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  bookings      Booking[]
+  reviews       Review[]
+}
+
+model Booking {
+  id              String        @id @default(cuid())
+  bookingRef      String        @unique @default(cuid())
+  tourId          String
+  tour            Tour          @relation(fields: [tourId], references: [id])
+  startDate       DateTime
+  adults          Int           @default(1)
+  children        Int           @default(0)
+  totalPrice      Float
+  currency        String        @default("USD")
+  status          BookingStatus @default(PENDING)
+  paymentStatus   PaymentStatus @default(UNPAID)
+  
+  // Lead traveller
+  firstName       String
+  lastName        String
+  email           String
+  phone           String
+  country         String
+  nationality     String?
+  
+  // Special requests
+  dietaryRequirements String?
+  specialRequests     String?   @db.Text
+  
+  // Metadata
+  source          String?       // website, email, phone, etc.
+  notes           String?       @db.Text
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Inquiry {
+  id          String    @id @default(cuid())
+  name        String
+  email       String
+  phone       String?
+  country     String?
+  tourInterest String?
+  travelDates  String?
+  groupSize    String?
+  budget       String?
+  message     String    @db.Text
+  status      InquiryStatus @default(NEW)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  tourId      String
+  tour        Tour      @relation(fields: [tourId], references: [id])
+  name        String
+  country     String
+  rating      Int       // 1-5
+  title       String
+  content     String    @db.Text
+  featured    Boolean   @default(false)
+  approved    Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+}
+
+model Destination {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  name        String
+  country     String
+  description String    @db.Text
+  coverImage  String
+  images      String[]
+  highlights  String[]
+  bestTime    String
+  climate     String?
+  featured    Boolean   @default(false)
+  active      Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+}
+
+enum TourCategory {
+  SAFARI
+  BEACH
+  MOUNTAIN
+  CULTURAL
+  ADVENTURE
+  WILDLIFE
+  HONEYMOON
+  FAMILY
+  LUXURY
+  BUDGET
+}
+
+enum Difficulty {
+  EASY
+  MODERATE
+  CHALLENGING
+  STRENUOUS
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+}
+
+enum PaymentStatus {
+  UNPAID
+  PARTIAL
+  PAID
+  REFUNDED
+}
+
+enum InquiryStatus {
+  NEW
+  CONTACTED
+  QUALIFIED
+  CLOSED
+}
