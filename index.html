@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>LogiTrack - Logistics Management</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Logistics Management Software</p>
+        <h1>LogiTrack Operations Hub</h1>
+        <p class="header-copy">
+          Coordinate shipments, vehicle capacity, warehouse inventory, and route costs from one lightweight dashboard.
+        </p>
+      </div>
+      <div class="header-actions">
+        <button class="secondary-button" id="resetDataButton" type="button">Reset sample data</button>
+        <button class="primary-button" id="exportDataButton" type="button">Export data</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <section class="kpi-grid" aria-label="Operations summary">
+        <article class="kpi-card">
+          <span class="kpi-label">Active shipments</span>
+          <strong id="activeShipments">0</strong>
+          <small id="delayedShipments">0 delayed</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Fleet utilization</span>
+          <strong id="fleetUtilization">0%</strong>
+          <small id="availableVehicles">0 vehicles available</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Stock health</span>
+          <strong id="stockHealth">0%</strong>
+          <small id="lowStockItems">0 low-stock SKUs</small>
+        </article>
+        <article class="kpi-card">
+          <span class="kpi-label">Projected route cost</span>
+          <strong id="projectedCost">$0</strong>
+          <small id="totalDistance">0 km scheduled</small>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Create shipment</p>
+            <h2>Book a delivery</h2>
+          </div>
+          <p>Assign customer freight to an available vehicle and track delivery performance.</p>
+        </div>
+
+        <form class="form-grid" id="shipmentForm">
+          <label>
+            Customer
+            <input id="customer" name="customer" placeholder="Acme Stores" required>
+          </label>
+          <label>
+            Origin
+            <input id="origin" name="origin" placeholder="Dallas, TX" required>
+          </label>
+          <label>
+            Destination
+            <input id="destination" name="destination" placeholder="Austin, TX" required>
+          </label>
+          <label>
+            Cargo
+            <input id="cargo" name="cargo" placeholder="Retail pallets" required>
+          </label>
+          <label>
+            Weight (kg)
+            <input id="weight" name="weight" type="number" min="1" step="1" placeholder="1250" required>
+          </label>
+          <label>
+            Distance (km)
+            <input id="distance" name="distance" type="number" min="1" step="1" placeholder="315" required>
+          </label>
+          <label>
+            Due date
+            <input id="dueDate" name="dueDate" type="date" required>
+          </label>
+          <label>
+            Vehicle
+            <select id="vehicleId" name="vehicleId" required></select>
+          </label>
+          <label>
+            Status
+            <select id="shipmentStatus" name="status">
+              <option value="Pending">Pending</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Delayed">Delayed</option>
+            </select>
+          </label>
+          <button class="primary-button form-submit" type="submit">Add shipment</button>
+        </form>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Shipment control</p>
+            <h2>Live shipment board</h2>
+          </div>
+          <div class="toolbar">
+            <input id="shipmentSearch" type="search" placeholder="Search shipments">
+            <select id="statusFilter" aria-label="Filter by status">
+              <option value="All">All statuses</option>
+              <option value="Pending">Pending</option>
+              <option value="In Transit">In Transit</option>
+              <option value="Delivered">Delivered</option>
+              <option value="Delayed">Delayed</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Shipment</th>
+                <th>Route</th>
+                <th>Cargo</th>
+                <th>Vehicle</th>
+                <th>Due</th>
+                <th>Status</th>
+                <th>Cost</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="shipmentsTable"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <div class="two-column">
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Fleet</p>
+              <h2>Vehicle capacity</h2>
+            </div>
+          </div>
+          <div class="stack-list" id="fleetList"></div>
+        </section>
+
+        <section class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Warehousing</p>
+              <h2>Inventory watchlist</h2>
+            </div>
+          </div>
+          <div class="stack-list" id="inventoryList"></div>
+        </section>
+      </div>
+    </main>
+
+    <template id="emptyStateTemplate">
+      <tr>
+        <td colspan="8" class="empty-state">No shipments match the current filters.</td>
+      </tr>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
