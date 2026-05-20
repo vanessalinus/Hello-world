@@ -95,18 +95,23 @@ Optional but recommended:
 
 ### Recommended hosting setup
 
-Best overall:
+Best fit for the codebase exactly as delivered:
 
-1. **Vercel** for the Next.js app
-2. **Neon** or **Supabase Postgres** for production database
-3. **Resend** for form notification emails
-4. **Cloudflare** for DNS, SSL, caching, and security
+1. **Railway** for the Next.js app with persistent disk storage
+2. **Resend** for form notification emails
+3. **Cloudflare** for DNS, SSL, caching, and security
+
+This project currently uses SQLite in the application layer. That makes Railway,
+Render, or a VPS-style host with persistent storage the easiest production path.
+If Leviva later wants a more scalable database architecture on Vercel or similar
+serverless platforms, the Prisma datasource can be migrated from SQLite to
+Postgres.
 
 ### Other strong hosting choices
 
-- **Netlify**: good alternative if your team already uses Netlify workflows
-- **Railway**: useful if you want app hosting and database in one developer-friendly platform
-- **DigitalOcean App Platform**: solid for teams wanting simpler cloud controls
+- **Render**: strong option if you want app hosting plus persistent storage
+- **DigitalOcean Droplet or App Platform**: solid if you want more operational control
+- **Vercel**: best for frontend deployment speed, but use it after switching the booking persistence layer to Postgres or if email-only lead delivery is acceptable
 - **AWS Amplify**: suitable for enterprise environments, but usually more operationally heavy
 
 ## Publishing checklist
@@ -114,7 +119,9 @@ Best overall:
 Before going live:
 
 1. Set the real production domain in `NEXT_PUBLIC_SITE_URL`
-2. Replace SQLite with hosted Postgres for production
+2. Choose production persistence:
+   - keep SQLite and deploy on a host with persistent storage, or
+   - migrate Prisma to Postgres before deploying to a serverless host
 3. Configure Resend email credentials if you want instant inbox notifications
 4. Set a strong `ADMIN_DASHBOARD_KEY`
 5. Point the domain DNS to the hosting provider

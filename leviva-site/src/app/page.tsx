@@ -416,7 +416,7 @@ export default function Home() {
                 >
                   <Star className="h-7 w-7 text-amber-500" />
                   <p className="mt-6 text-base leading-8 text-slate-700">
-                    "{testimonial.quote}"
+                    &ldquo;{testimonial.quote}&rdquo;
                   </p>
                   <div className="mt-8">
                     <p className="font-semibold text-slate-950">{testimonial.name}</p>
