@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>LMS · Logistics Management Software</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230ea5e9'/%3E%3Cpath d='M8 40h32V20H12L8 28v12zm32-20h12l8 12v8H40V20zM18 50a4 4 0 100-8 4 4 0 000 8zm28 0a4 4 0 100-8 4 4 0 000 8z' fill='white'/%3E%3C/svg%3E" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body class="bg-slate-100 text-slate-800">
+    <div id="app" class="min-h-screen flex">
+      <aside class="hidden md:flex md:w-64 flex-col bg-slate-900 text-slate-100 sticky top-0 h-screen">
+        <div class="px-6 py-5 border-b border-slate-800 flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-sky-500 flex items-center justify-center font-bold text-lg">L</div>
+          <div>
+            <div class="font-semibold leading-tight">Logistics</div>
+            <div class="text-xs text-slate-400">Management Suite</div>
+          </div>
+        </div>
+        <nav id="sidebar-nav" class="p-3 flex-1 overflow-y-auto space-y-1 text-sm"></nav>
+        <div class="p-4 border-t border-slate-800 text-xs text-slate-400">
+          <div>v1.0.0</div>
+          <div class="text-slate-500">© LMS</div>
+        </div>
+      </aside>
+
+      <div class="flex-1 flex flex-col min-w-0">
+        <header class="bg-white border-b border-slate-200 px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+          <div>
+            <h1 id="page-title" class="text-xl font-semibold text-slate-800">Dashboard</h1>
+            <p id="page-subtitle" class="text-sm text-slate-500">Overview of your logistics operations.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input id="track-input" type="text" placeholder="Track #LMS-..." class="hidden md:block px-3 py-2 border border-slate-300 rounded-lg text-sm w-64 focus:outline-none focus:ring-2 focus:ring-sky-400" />
+            <button id="track-btn" class="bg-slate-900 hover:bg-slate-800 text-white px-4 py-2 rounded-lg text-sm font-medium">Track</button>
+          </div>
+        </header>
+
+        <main id="page" class="flex-1 p-6"></main>
+      </div>
+    </div>
+
+    <div id="modal-root"></div>
+    <div id="toast-root" class="fixed top-5 right-5 z-50 space-y-2"></div>
+
+    <script src="/app.js"></script>
+  </body>
+</html>
