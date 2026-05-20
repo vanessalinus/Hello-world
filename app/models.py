@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from flask_sqlalchemy import SQLAlchemy
 
@@ -9,6 +9,10 @@ VEHICLE_STATUSES = ["available", "in_use", "maintenance"]
 PRIORITY_LEVELS = ["low", "medium", "high", "critical"]
 
 
+def utcnow():
+    return datetime.now(UTC).replace(tzinfo=None)
+
+
 class Driver(db.Model):
     __tablename__ = "drivers"
 
@@ -17,7 +21,7 @@ class Driver(db.Model):
     license_number = db.Column(db.String(80), unique=True, nullable=False)
     phone = db.Column(db.String(32), nullable=False)
     is_active = db.Column(db.Boolean, default=True, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     shipments = db.relationship("Shipment", back_populates="driver")
 
@@ -30,7 +34,7 @@ class Vehicle(db.Model):
     vehicle_type = db.Column(db.String(80), nullable=False)
     capacity_kg = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(30), default="available", nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
 
     shipments = db.relationship("Shipment", back_populates="vehicle")
 
@@ -48,9 +52,9 @@ class Shipment(db.Model):
     status = db.Column(db.String(30), default="pending", nullable=False)
     eta = db.Column(db.DateTime, nullable=False)
     notes = db.Column(db.Text, default="", nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=utcnow, nullable=False)
     updated_at = db.Column(
-        db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+        db.DateTime, default=utcnow, onupdate=utcnow, nullable=False
     )
 
     driver_id = db.Column(db.Integer, db.ForeignKey("drivers.id"), nullable=True)

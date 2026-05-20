@@ -1,7 +1,8 @@
-from datetime import datetime
+from datetime import UTC, datetime
 
 from flask import (
     Blueprint,
+    abort,
     flash,
     jsonify,
     redirect,
@@ -25,7 +26,7 @@ logistics_bp = Blueprint("logistics", __name__)
 
 def _generate_tracking_number():
     sequence = Shipment.query.count() + 1
-    date_token = datetime.utcnow().strftime("%Y%m%d")
+    date_token = datetime.now(UTC).strftime("%Y%m%d")
     return f"TRK-{date_token}-{sequence:04d}"
 
 
@@ -138,7 +139,9 @@ def create_shipment():
 
 @logistics_bp.route("/shipments/<int:shipment_id>/status", methods=["POST"])
 def update_shipment_status(shipment_id):
-    shipment = Shipment.query.get_or_404(shipment_id)
+    shipment = db.session.get(Shipment, shipment_id)
+    if shipment is None:
+        abort(404)
     next_status = request.form.get("status", "")
 
     if next_status not in SHIPMENT_STATUSES:

@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import UTC, datetime, timedelta
 
 from flask import Flask
 
@@ -62,7 +62,7 @@ def _seed_default_data():
         weight_kg=1200,
         priority="high",
         status="in_transit",
-        eta=datetime.utcnow() + timedelta(hours=6),
+        eta=datetime.now(UTC).replace(tzinfo=None) + timedelta(hours=6),
         notes="Fragile electronics. Handle with care.",
         driver_id=drivers[0].id,
         vehicle_id=vehicles[0].id,
