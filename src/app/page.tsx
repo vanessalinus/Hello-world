@@ -6,7 +6,7 @@ import {
   Landmark,
   MapPinned,
   Mountain,
-  PalmTree,
+  Palmtree,
   PhoneCall,
   ShieldCheck,
   Sparkles,
@@ -33,7 +33,7 @@ const destinations = [
   },
   {
     title: "Zanzibar Escape",
-    icon: PalmTree,
+    icon: Palmtree,
     description:
       "A high-conversion add-on for safari leads: combine beach downtime, spice tours, Stone Town culture, and premium oceanfront stays.",
     bestFor: "China, South Korea, Europe",
