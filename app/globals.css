@@ -1,0 +1,55 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #fbf8f1;
+  --foreground: #1a1410;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-feature-settings: "rlig" 1, "calt" 1;
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-sunset-500 px-6 py-3 font-semibold text-white shadow-cta transition hover:bg-sunset-600 hover:shadow-lg active:scale-[0.98];
+  }
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-savanna-300 bg-white/90 px-6 py-3 font-semibold text-savanna-900 transition hover:bg-white hover:border-savanna-500;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-white px-6 py-3 font-semibold text-white transition hover:bg-white/10;
+  }
+  .chip {
+    @apply inline-flex items-center gap-1 rounded-full bg-acacia-100 px-3 py-1 text-xs font-medium text-acacia-800;
+  }
+  .section-heading {
+    @apply font-display text-3xl font-bold tracking-tight text-savanna-900 sm:text-4xl;
+  }
+  .section-eyebrow {
+    @apply mb-2 inline-block text-sm font-semibold uppercase tracking-widest text-sunset-500;
+  }
+  .card {
+    @apply overflow-hidden rounded-2xl bg-white shadow-card transition hover:-translate-y-1 hover:shadow-xl;
+  }
+  .input {
+    @apply w-full rounded-lg border border-savanna-200 bg-white px-4 py-3 text-sm shadow-sm outline-none transition focus:border-sunset-500 focus:ring-2 focus:ring-sunset-500/20;
+  }
+  .label {
+    @apply mb-1 block text-sm font-medium text-savanna-900;
+  }
+}
+
+.gradient-text {
+  background: linear-gradient(90deg, #e0683b 0%, #b88629 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
