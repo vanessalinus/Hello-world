@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="FlowFreight is a browser-based logistics management dashboard for shipments, fleet utilization, warehouse pressure, and operational alerts."
+    />
+    <title>FlowFreight Logistics Management</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar">
+        <div>
+          <p class="eyebrow">Operations Suite</p>
+          <h1>FlowFreight</h1>
+          <p class="sidebar-copy">
+            Logistics management software for dispatching, warehousing, and
+            fleet oversight in one place.
+          </p>
+        </div>
+
+        <nav class="sidebar-nav" aria-label="Primary navigation">
+          <a href="#dashboard">Dashboard</a>
+          <a href="#shipments">Shipments</a>
+          <a href="#fleet">Fleet</a>
+          <a href="#warehouses">Warehouses</a>
+          <a href="#timeline">Timeline</a>
+        </nav>
+
+        <section class="sidebar-card">
+          <p class="card-label">Service health</p>
+          <div class="status-pill status-pill--ok">Stable</div>
+          <p class="card-note">
+            Monitoring shipment delays, fleet availability, and stock pressure.
+          </p>
+        </section>
+      </aside>
+
+      <main class="content">
+        <header class="hero" id="dashboard">
+          <div>
+            <p class="eyebrow">Logistics management software</p>
+            <h2>Command center for freight, fleet, and warehouse operations</h2>
+            <p class="hero-copy">
+              Track active deliveries, register new shipments, and prioritize
+              operational alerts from a single responsive dashboard.
+            </p>
+          </div>
+          <div class="hero-actions">
+            <button class="button button--secondary" id="seed-data-button">
+              Reset sample data
+            </button>
+            <a class="button button--primary" href="#new-shipment">
+              Plan a shipment
+            </a>
+          </div>
+        </header>
+
+        <section class="metrics-grid" aria-label="Key logistics metrics">
+          <article class="metric-card">
+            <p class="card-label">Active shipments</p>
+            <strong id="metric-active">0</strong>
+            <span id="metric-active-note">Loading operations</span>
+          </article>
+          <article class="metric-card">
+            <p class="card-label">On-time rate</p>
+            <strong id="metric-on-time">0%</strong>
+            <span>Based on delivered and in-transit loads</span>
+          </article>
+          <article class="metric-card">
+            <p class="card-label">Delayed loads</p>
+            <strong id="metric-delayed">0</strong>
+            <span id="metric-delay-note">No critical exceptions</span>
+          </article>
+          <article class="metric-card">
+            <p class="card-label">Fleet utilization</p>
+            <strong id="metric-utilization">0%</strong>
+            <span id="metric-utilization-note">Balanced vehicle assignment</span>
+          </article>
+        </section>
+
+        <section class="grid grid--double">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Operations alerts</p>
+                <h3>Exception monitor</h3>
+              </div>
+              <span class="badge" id="alert-count">0 alerts</span>
+            </div>
+            <div id="alerts-list" class="stack-list" aria-live="polite"></div>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Network overview</p>
+                <h3>Regional warehouse capacity</h3>
+              </div>
+            </div>
+            <div id="warehouse-capacity" class="warehouse-capacity"></div>
+          </article>
+        </section>
+
+        <section class="grid grid--double" id="shipments">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Shipment intake</p>
+                <h3 id="new-shipment">Plan a new shipment</h3>
+              </div>
+            </div>
+
+            <form id="shipment-form" class="form-grid">
+              <label>
+                Shipment reference
+                <input
+                  type="text"
+                  name="reference"
+                  placeholder="FF-2401"
+                  required
+                />
+              </label>
+              <label>
+                Origin
+                <input type="text" name="origin" placeholder="Dallas, TX" required />
+              </label>
+              <label>
+                Destination
+                <input
+                  type="text"
+                  name="destination"
+                  placeholder="Atlanta, GA"
+                  required
+                />
+              </label>
+              <label>
+                Transport mode
+                <select name="mode" required>
+                  <option value="Road">Road</option>
+                  <option value="Air">Air</option>
+                  <option value="Rail">Rail</option>
+                  <option value="Ocean">Ocean</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                <select name="priority" required>
+                  <option value="High">High</option>
+                  <option value="Normal" selected>Normal</option>
+                  <option value="Low">Low</option>
+                </select>
+              </label>
+              <label>
+                Assigned vehicle
+                <select name="vehicleId" id="vehicle-select" required></select>
+              </label>
+              <label>
+                Status
+                <select name="status" required>
+                  <option value="In Transit">In Transit</option>
+                  <option value="Scheduled">Scheduled</option>
+                  <option value="Delayed">Delayed</option>
+                  <option value="Delivered">Delivered</option>
+                </select>
+              </label>
+              <label>
+                Estimated arrival
+                <input type="datetime-local" name="eta" required />
+              </label>
+              <label class="form-grid__full">
+                Notes
+                <textarea
+                  name="notes"
+                  rows="3"
+                  placeholder="Customer constraints, handling notes, route considerations"
+                ></textarea>
+              </label>
+              <div class="form-grid__full form-actions">
+                <button type="submit" class="button button--primary">
+                  Add shipment
+                </button>
+                <p id="form-feedback" class="helper-text" aria-live="polite"></p>
+              </div>
+            </form>
+          </article>
+
+          <article class="panel">
+            <div class="panel-heading panel-heading--stacked">
+              <div>
+                <p class="eyebrow">Shipment board</p>
+                <h3>Track and update deliveries</h3>
+              </div>
+              <div class="toolbar">
+                <label>
+                  <span class="sr-only">Search shipments</span>
+                  <input
+                    id="shipment-search"
+                    type="search"
+                    placeholder="Search by reference or route"
+                  />
+                </label>
+                <label>
+                  <span class="sr-only">Filter shipment status</span>
+                  <select id="shipment-filter">
+                    <option value="All">All statuses</option>
+                    <option value="Scheduled">Scheduled</option>
+                    <option value="In Transit">In Transit</option>
+                    <option value="Delayed">Delayed</option>
+                    <option value="Delivered">Delivered</option>
+                  </select>
+                </label>
+              </div>
+            </div>
+
+            <div class="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Reference</th>
+                    <th>Route</th>
+                    <th>Mode</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>ETA</th>
+                    <th>Vehicle</th>
+                  </tr>
+                </thead>
+                <tbody id="shipments-table-body"></tbody>
+              </table>
+            </div>
+          </article>
+        </section>
+
+        <section class="grid grid--double" id="fleet">
+          <article class="panel">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Fleet control</p>
+                <h3>Vehicle readiness</h3>
+              </div>
+            </div>
+            <div id="fleet-grid" class="fleet-grid"></div>
+          </article>
+
+          <article class="panel" id="warehouses">
+            <div class="panel-heading">
+              <div>
+                <p class="eyebrow">Warehouse inventory</p>
+                <h3>Storage pressure and stock health</h3>
+              </div>
+            </div>
+            <div id="warehouse-grid" class="warehouse-grid"></div>
+          </article>
+        </section>
+
+        <section class="panel" id="timeline">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">Execution timeline</p>
+              <h3>Recent operational activity</h3>
+            </div>
+          </div>
+          <div id="timeline-list" class="timeline-list"></div>
+        </section>
+      </main>
+    </div>
+
+    <template id="empty-state-template">
+      <div class="empty-state">
+        <p>No records match the current filters.</p>
+      </div>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
