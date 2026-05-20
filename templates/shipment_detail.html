@@ -1,0 +1,212 @@
+{% extends "base.html" %}
+{% block title %}Shipment {{ shipment.tracking_number }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('shipments_list') }}" class="text-sm text-gray-500 hover:text-brand-600"><i class="fas fa-arrow-left mr-1"></i> Back to Shipments</a>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ shipment.tracking_number }}</h1>
+            <p class="text-sm text-gray-500">{{ shipment.origin_city }} &rarr; {{ shipment.destination_city }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            <span class="badge badge-{{ shipment.status }} text-sm px-3 py-1">{{ shipment.status | replace('_',' ') | title }}</span>
+            <form method="POST" action="{{ url_for('shipment_delete', shipment_id=shipment.id) }}" onsubmit="return confirm('Delete this shipment?')">
+                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> Delete</button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Details & Edit Form -->
+    <div class="lg:col-span-2 space-y-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700">Shipment Details</h3>
+            </div>
+            <form method="POST" action="{{ url_for('shipment_update', shipment_id=shipment.id) }}">
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Status</label>
+                        <select name="status" class="form-select">
+                            {% for s in ['pending','processing','picked_up','in_transit','delivered','cancelled'] %}
+                            <option value="{{ s }}" {% if shipment.status == s %}selected{% endif %}>{{ s | replace('_',' ') | title }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Cost ($)</label>
+                        <input type="number" step="0.01" name="cost" value="{{ shipment.cost }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Origin Address</label>
+                        <input type="text" name="origin" value="{{ shipment.origin }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Origin City</label>
+                        <input type="text" name="origin_city" value="{{ shipment.origin_city }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Destination Address</label>
+                        <input type="text" name="destination" value="{{ shipment.destination }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Destination City</label>
+                        <input type="text" name="destination_city" value="{{ shipment.destination_city }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Weight (kg)</label>
+                        <input type="number" step="0.1" name="total_weight_kg" value="{{ shipment.total_weight_kg }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Volume (m&sup3;)</label>
+                        <input type="number" step="0.1" name="total_volume_cbm" value="{{ shipment.total_volume_cbm }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Vehicle</label>
+                        <select name="vehicle_id" class="form-select">
+                            <option value="">— None —</option>
+                            {% for v in vehicles %}
+                            <option value="{{ v.id }}" {% if shipment.vehicle_id == v.id %}selected{% endif %}>{{ v.plate_number }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Warehouse</label>
+                        <select name="warehouse_id" class="form-select">
+                            <option value="">— None —</option>
+                            {% for w in warehouses %}
+                            <option value="{{ w.id }}" {% if shipment.warehouse_id == w.id %}selected{% endif %}>{{ w.name }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div>
+                        <label class="form-label">Est. Departure</label>
+                        <input type="datetime-local" name="estimated_departure" value="{{ shipment.estimated_departure.strftime('%Y-%m-%dT%H:%M') if shipment.estimated_departure else '' }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Est. Arrival</label>
+                        <input type="datetime-local" name="estimated_arrival" value="{{ shipment.estimated_arrival.strftime('%Y-%m-%dT%H:%M') if shipment.estimated_arrival else '' }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Status Update Location</label>
+                        <input type="text" name="event_location" placeholder="e.g. Chicago Hub" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Status Update Note</label>
+                        <input type="text" name="event_description" placeholder="Description of status change" class="form-input">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="form-label">Notes</label>
+                        <textarea name="notes" rows="2" class="form-input">{{ shipment.notes or '' }}</textarea>
+                    </div>
+                </div>
+                <div class="px-5 py-4 border-t border-gray-100 flex justify-end">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Assigned Orders -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-700">Assigned Orders ({{ shipment.orders | length }})</h3>
+            </div>
+            {% if shipment.orders %}
+            <div class="divide-y divide-gray-50">
+                {% for o in shipment.orders %}
+                <a href="{{ url_for('order_detail', order_id=o.id) }}" class="flex items-center justify-between px-5 py-3 hover:bg-gray-50">
+                    <div>
+                        <p class="text-sm font-medium text-brand-600">{{ o.order_number }}</p>
+                        <p class="text-xs text-gray-400">{{ o.customer_name }} — {{ o.destination_city }}</p>
+                    </div>
+                    <span class="badge badge-{{ o.status }}">{{ o.status | replace('_',' ') | title }}</span>
+                </a>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="px-5 py-6 text-sm text-gray-400 text-center">No orders assigned</p>
+            {% endif %}
+
+            {% if unassigned_orders %}
+            <div class="px-5 py-4 border-t border-gray-100">
+                <form method="POST" action="{{ url_for('shipment_assign_order', shipment_id=shipment.id) }}" class="flex gap-3">
+                    <select name="order_id" required class="form-select flex-1">
+                        <option value="">Select order to assign...</option>
+                        {% for o in unassigned_orders %}
+                        <option value="{{ o.id }}">{{ o.order_number }} — {{ o.customer_name }}</option>
+                        {% endfor %}
+                    </select>
+                    <button type="submit" class="btn btn-secondary btn-sm"><i class="fas fa-link"></i> Assign</button>
+                </form>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Tracking Timeline -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700">Tracking Timeline</h3>
+            </div>
+            <div class="p-5">
+                {% if shipment.tracking_events %}
+                <div class="space-y-0">
+                    {% for event in shipment.tracking_events %}
+                    <div class="flex gap-3 {% if not loop.last %}pb-6{% endif %} relative">
+                        {% if not loop.last %}
+                        <div class="absolute left-[11px] top-6 bottom-0 w-0.5 bg-gray-200"></div>
+                        {% endif %}
+                        <div class="w-6 h-6 rounded-full flex-shrink-0 flex items-center justify-center {% if loop.first %}bg-brand-600{% else %}bg-gray-300{% endif %}">
+                            <i class="fas fa-circle text-white text-[6px]"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-gray-800">{{ event.status | replace('_',' ') | title }}</p>
+                            {% if event.location %}<p class="text-xs text-gray-500"><i class="fas fa-map-marker-alt mr-1"></i>{{ event.location }}</p>{% endif %}
+                            {% if event.description %}<p class="text-xs text-gray-400 mt-0.5">{{ event.description }}</p>{% endif %}
+                            <p class="text-xs text-gray-300 mt-1">{{ event.timestamp.strftime('%b %d, %Y %H:%M') if event.timestamp else '' }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-sm text-gray-400 text-center py-4">No tracking events</p>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Quick Info -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Quick Info</h3>
+            <dl class="space-y-2 text-sm">
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Created</dt>
+                    <dd class="text-gray-800 font-medium">{{ shipment.created_at.strftime('%b %d, %Y') if shipment.created_at else '—' }}</dd>
+                </div>
+                {% if shipment.actual_departure %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Departed</dt>
+                    <dd class="text-gray-800 font-medium">{{ shipment.actual_departure.strftime('%b %d, %Y %H:%M') }}</dd>
+                </div>
+                {% endif %}
+                {% if shipment.actual_arrival %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Arrived</dt>
+                    <dd class="text-gray-800 font-medium">{{ shipment.actual_arrival.strftime('%b %d, %Y %H:%M') }}</dd>
+                </div>
+                {% endif %}
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Vehicle</dt>
+                    <dd class="text-gray-800 font-medium">{{ shipment.vehicle.plate_number if shipment.vehicle else '—' }}</dd>
+                </div>
+                <div class="flex justify-between">
+                    <dt class="text-gray-500">Cost</dt>
+                    <dd class="text-gray-800 font-medium">${{ "%.2f"|format(shipment.cost) }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+{% endblock %}

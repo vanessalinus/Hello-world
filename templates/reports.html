@@ -1,0 +1,207 @@
+{% extends "base.html" %}
+{% block title %}Reports & Analytics{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <h1 class="text-2xl font-bold text-gray-900">Reports & Analytics</h1>
+    <p class="text-sm text-gray-500 mt-1">Comprehensive overview of logistics performance</p>
+</div>
+
+<!-- Summary KPIs -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+    <div class="stat-card">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Shipments</span>
+        <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_shipments }}</p>
+        <div class="flex gap-3 mt-2 text-xs">
+            <span class="text-green-600"><i class="fas fa-check mr-0.5"></i>{{ delivered }} delivered</span>
+            <span class="text-indigo-600"><i class="fas fa-truck mr-0.5"></i>{{ in_transit }} in transit</span>
+        </div>
+    </div>
+    <div class="stat-card">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Orders</span>
+        <p class="text-3xl font-bold text-gray-900 mt-2">{{ total_orders }}</p>
+        <p class="text-xs text-gray-400 mt-2">Avg value: ${{ "%.2f"|format(avg_order_value) }}</p>
+    </div>
+    <div class="stat-card">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Revenue</span>
+        <p class="text-3xl font-bold text-green-600 mt-2">${{ "{:,.2f}".format(total_revenue) }}</p>
+        <p class="text-xs text-gray-400 mt-2">Est: ${{ "{:,.2f}".format(total_estimated) }}</p>
+    </div>
+    <div class="stat-card">
+        <span class="text-xs font-semibold text-gray-500 uppercase tracking-wide">Total Freight</span>
+        <p class="text-3xl font-bold text-gray-900 mt-2">{{ "{:,.0f}".format(total_weight) }} <span class="text-base font-normal text-gray-400">kg</span></p>
+        <p class="text-xs text-gray-400 mt-2">Shipping cost: ${{ "{:,.2f}".format(total_cost) }}</p>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Shipment Delivery Funnel -->
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">Shipment Pipeline</h3>
+        <div class="space-y-3">
+            {% set max_count = [1, total_shipments] | max %}
+            {% for status, label, color in [('pending','Pending','bg-yellow-400'),('processing','Processing','bg-blue-400'),('picked_up','Picked Up','bg-indigo-400'),('in_transit','In Transit','bg-purple-500'),('delivered','Delivered','bg-green-500'),('cancelled','Cancelled','bg-red-400')] %}
+            {% set count = shipment_statuses.get(status, 0) if shipment_statuses is defined else 0 %}
+            <div>
+                <div class="flex justify-between text-sm mb-1">
+                    <span class="text-gray-600">{{ label }}</span>
+                    <span class="font-medium text-gray-800">{{ count }}</span>
+                </div>
+                <div class="w-full bg-gray-100 rounded-full h-2.5">
+                    <div class="{{ color }} h-2.5 rounded-full transition-all" style="width: {{ (count / max_count * 100) if max_count else 0 }}%"></div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Order Priority Breakdown -->
+    <div class="bg-white rounded-xl border border-gray-100 p-5 shadow-sm">
+        <h3 class="text-sm font-semibold text-gray-700 mb-4">Order Priority Distribution</h3>
+        <canvas id="priorityChart" height="200"></canvas>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Top Destinations -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700">Top Destinations</h3>
+        </div>
+        <div class="p-5">
+            {% if top_destinations %}
+            <div class="space-y-3">
+                {% for city, count in top_destinations %}
+                <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 rounded-lg bg-brand-50 flex items-center justify-center flex-shrink-0">
+                        <i class="fas fa-map-marker-alt text-brand-600 text-xs"></i>
+                    </div>
+                    <div class="flex-1 min-w-0">
+                        <div class="flex justify-between items-center mb-1">
+                            <span class="text-sm font-medium text-gray-800">{{ city }}</span>
+                            <span class="text-sm text-gray-500">{{ count }} shipments</span>
+                        </div>
+                        <div class="w-full bg-gray-100 rounded-full h-1.5">
+                            <div class="bg-brand-500 h-1.5 rounded-full" style="width: {{ (count / top_destinations[0][1] * 100) if top_destinations[0][1] else 0 }}%"></div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-sm text-gray-400 text-center py-4">No shipment data</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Fleet Status -->
+    <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+        <div class="px-5 py-4 border-b border-gray-100">
+            <h3 class="text-sm font-semibold text-gray-700">Fleet Status</h3>
+        </div>
+        <div class="p-5">
+            {% if vehicle_statuses %}
+            <canvas id="fleetChart" height="200"></canvas>
+            {% else %}
+            <p class="text-sm text-gray-400 text-center py-4">No vehicle data</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Warehouse Performance -->
+<div class="bg-white rounded-xl border border-gray-100 shadow-sm mb-8">
+    <div class="px-5 py-4 border-b border-gray-100">
+        <h3 class="text-sm font-semibold text-gray-700">Warehouse Performance</h3>
+    </div>
+    <div class="overflow-x-auto">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Warehouse</th>
+                    <th>Location</th>
+                    <th>Items</th>
+                    <th>Total Qty</th>
+                    <th>Occupancy</th>
+                    <th>Low Stock Alerts</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for wd in warehouse_data %}
+                <tr>
+                    <td>
+                        <a href="{{ url_for('warehouse_detail', warehouse_id=wd.warehouse.id) }}" class="font-medium text-brand-600 hover:text-brand-800">{{ wd.warehouse.name }}</a>
+                        <span class="text-xs text-gray-400 ml-1">({{ wd.warehouse.code }})</span>
+                    </td>
+                    <td>{{ wd.warehouse.city }}, {{ wd.warehouse.state }}</td>
+                    <td>{{ wd.item_count }}</td>
+                    <td>{{ "{:,}".format(wd.total_quantity) }}</td>
+                    <td>
+                        <div class="flex items-center gap-2">
+                            <div class="w-16 bg-gray-100 rounded-full h-2">
+                                <div class="h-2 rounded-full {% if wd.warehouse.occupancy_pct > 90 %}bg-red-500{% elif wd.warehouse.occupancy_pct > 70 %}bg-amber-500{% else %}bg-brand-500{% endif %}" style="width: {{ [wd.warehouse.occupancy_pct, 100] | min }}%"></div>
+                            </div>
+                            <span class="text-xs font-medium">{{ wd.warehouse.occupancy_pct }}%</span>
+                        </div>
+                    </td>
+                    <td>
+                        {% if wd.low_stock > 0 %}
+                        <span class="badge bg-amber-100 text-amber-700"><i class="fas fa-exclamation-triangle mr-1"></i>{{ wd.low_stock }}</span>
+                        {% else %}
+                        <span class="text-green-600 text-xs"><i class="fas fa-check"></i> OK</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr><td colspan="6" class="text-center py-8 text-gray-400">No warehouse data</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+const priorityData = {{ priority_breakdown | tojson }};
+new Chart(document.getElementById('priorityChart'), {
+    type: 'bar',
+    data: {
+        labels: Object.keys(priorityData).map(s => s.charAt(0).toUpperCase() + s.slice(1)),
+        datasets: [{
+            label: 'Orders',
+            data: Object.values(priorityData),
+            backgroundColor: ['#94a3b8', '#3b82f6', '#f97316', '#ef4444'],
+            borderRadius: 6,
+            barThickness: 40,
+        }]
+    },
+    options: {
+        responsive: true,
+        plugins: { legend: { display: false } },
+        scales: {
+            y: { beginAtZero: true, ticks: { stepSize: 1 } },
+            x: { grid: { display: false } }
+        }
+    }
+});
+
+{% if vehicle_statuses %}
+const fleetData = {{ vehicle_statuses | tojson }};
+const fleetColors = { available: '#10b981', on_trip: '#6366f1', maintenance: '#f59e0b', out_of_service: '#ef4444' };
+new Chart(document.getElementById('fleetChart'), {
+    type: 'doughnut',
+    data: {
+        labels: Object.keys(fleetData).map(s => s.replace('_',' ').replace(/\b\w/g, c => c.toUpperCase())),
+        datasets: [{
+            data: Object.values(fleetData),
+            backgroundColor: Object.keys(fleetData).map(s => fleetColors[s] || '#94a3b8'),
+            borderWidth: 0,
+            hoverOffset: 8
+        }]
+    },
+    options: { responsive: true, plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, padding: 16, font: { size: 11 } } } }, cutout: '60%' }
+});
+{% endif %}
+</script>
+{% endblock %}

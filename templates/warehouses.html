@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Warehouses{% endblock %}
+
+{% block content %}
+<div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+    <div>
+        <h1 class="text-2xl font-bold text-gray-900">Warehouses</h1>
+        <p class="text-sm text-gray-500 mt-1">Manage warehouse locations and inventory</p>
+    </div>
+    <button onclick="document.getElementById('createModal').classList.remove('hidden')" class="btn btn-primary">
+        <i class="fas fa-plus"></i> New Warehouse
+    </button>
+</div>
+
+<!-- Warehouse Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+    {% for w in warehouses %}
+    <a href="{{ url_for('warehouse_detail', warehouse_id=w.id) }}" class="bg-white rounded-xl border border-gray-100 shadow-sm hover:shadow-md transition-all p-5 block">
+        <div class="flex items-start justify-between mb-3">
+            <div>
+                <h3 class="font-semibold text-gray-900">{{ w.name }}</h3>
+                <p class="text-xs text-gray-400 font-mono">{{ w.code }}</p>
+            </div>
+            {% if w.is_active %}
+            <span class="badge bg-green-100 text-green-700">Active</span>
+            {% else %}
+            <span class="badge bg-gray-100 text-gray-500">Inactive</span>
+            {% endif %}
+        </div>
+        <p class="text-sm text-gray-600 mb-3"><i class="fas fa-map-marker-alt text-gray-400 mr-1"></i> {{ w.city }}, {{ w.state }}</p>
+        <div class="mb-2">
+            <div class="flex justify-between text-xs mb-1">
+                <span class="text-gray-500">Occupancy</span>
+                <span class="font-medium {% if w.occupancy_pct > 90 %}text-red-600{% elif w.occupancy_pct > 70 %}text-amber-600{% else %}text-gray-700{% endif %}">{{ w.occupancy_pct }}%</span>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-2">
+                <div class="h-2 rounded-full {% if w.occupancy_pct > 90 %}bg-red-500{% elif w.occupancy_pct > 70 %}bg-amber-500{% else %}bg-brand-500{% endif %}" style="width: {{ [w.occupancy_pct, 100] | min }}%"></div>
+            </div>
+        </div>
+        <div class="flex justify-between text-xs text-gray-400">
+            <span>{{ w.current_occupancy | int }} / {{ w.capacity | int }} units</span>
+            {% if w.manager_name %}<span>{{ w.manager_name }}</span>{% endif %}
+        </div>
+    </a>
+    {% else %}
+    <div class="sm:col-span-2 lg:col-span-3 text-center py-16 text-gray-400">
+        <i class="fas fa-warehouse text-4xl mb-3"></i>
+        <p>No warehouses yet. Create one to get started.</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Create Modal -->
+<div id="createModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl mx-4 max-h-[90vh] overflow-y-auto">
+        <form method="POST" action="{{ url_for('warehouse_create') }}">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Create Warehouse</h2>
+                <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Name *</label>
+                    <input type="text" name="name" required class="form-input" placeholder="East Coast Hub">
+                </div>
+                <div>
+                    <label class="form-label">Code *</label>
+                    <input type="text" name="code" required class="form-input" placeholder="WH-EC01">
+                </div>
+                <div class="sm:col-span-2">
+                    <label class="form-label">Address *</label>
+                    <input type="text" name="address" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">City *</label>
+                    <input type="text" name="city" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">State *</label>
+                    <input type="text" name="state" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Country</label>
+                    <input type="text" name="country" value="USA" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">ZIP Code</label>
+                    <input type="text" name="zip_code" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Capacity (units)</label>
+                    <input type="number" name="capacity" value="10000" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Phone</label>
+                    <input type="text" name="phone" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Manager Name</label>
+                    <input type="text" name="manager_name" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Manager Email</label>
+                    <input type="email" name="manager_email" class="form-input">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('createModal').classList.add('hidden')" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Create</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

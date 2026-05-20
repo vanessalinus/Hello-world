@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block title %}{{ warehouse.name }}{% endblock %}
+
+{% block content %}
+<div class="mb-6">
+    <a href="{{ url_for('warehouses_list') }}" class="text-sm text-gray-500 hover:text-brand-600"><i class="fas fa-arrow-left mr-1"></i> Back to Warehouses</a>
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-2">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ warehouse.name }}</h1>
+            <p class="text-sm text-gray-500">{{ warehouse.code }} — {{ warehouse.city }}, {{ warehouse.state }}</p>
+        </div>
+        <div class="flex items-center gap-3">
+            {% if warehouse.is_active %}
+            <span class="badge bg-green-100 text-green-700 text-sm px-3 py-1">Active</span>
+            {% else %}
+            <span class="badge bg-gray-100 text-gray-500 text-sm px-3 py-1">Inactive</span>
+            {% endif %}
+            <form method="POST" action="{{ url_for('warehouse_delete', warehouse_id=warehouse.id) }}" onsubmit="return confirm('Delete this warehouse and all its inventory?')">
+                <button class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Warehouse Edit -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div class="px-5 py-4 border-b border-gray-100">
+                <h3 class="text-sm font-semibold text-gray-700">Warehouse Details</h3>
+            </div>
+            <form method="POST" action="{{ url_for('warehouse_update', warehouse_id=warehouse.id) }}">
+                <div class="p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label">Name</label>
+                        <input type="text" name="name" value="{{ warehouse.name }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Capacity</label>
+                        <input type="number" name="capacity" value="{{ warehouse.capacity }}" class="form-input">
+                    </div>
+                    <div class="sm:col-span-2">
+                        <label class="form-label">Address</label>
+                        <input type="text" name="address" value="{{ warehouse.address }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">City</label>
+                        <input type="text" name="city" value="{{ warehouse.city }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">State</label>
+                        <input type="text" name="state" value="{{ warehouse.state }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Country</label>
+                        <input type="text" name="country" value="{{ warehouse.country }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">ZIP Code</label>
+                        <input type="text" name="zip_code" value="{{ warehouse.zip_code or '' }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Manager</label>
+                        <input type="text" name="manager_name" value="{{ warehouse.manager_name or '' }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Manager Email</label>
+                        <input type="email" name="manager_email" value="{{ warehouse.manager_email or '' }}" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Phone</label>
+                        <input type="text" name="phone" value="{{ warehouse.phone or '' }}" class="form-input">
+                    </div>
+                    <div class="flex items-center gap-2 pt-5">
+                        <input type="checkbox" name="is_active" id="is_active" {% if warehouse.is_active %}checked{% endif %} class="rounded border-gray-300 text-brand-600 focus:ring-brand-500">
+                        <label for="is_active" class="text-sm text-gray-700">Active</label>
+                    </div>
+                </div>
+                <div class="px-5 py-4 border-t border-gray-100 flex justify-end">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- Inventory Table -->
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm">
+            <div class="px-5 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h3 class="text-sm font-semibold text-gray-700">Inventory ({{ inventory | length }} items)</h3>
+                <button onclick="document.getElementById('addInventoryModal').classList.remove('hidden')" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Add Item</button>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>SKU</th>
+                            <th>Name</th>
+                            <th>Category</th>
+                            <th>Qty</th>
+                            <th>Unit</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in inventory %}
+                        <tr>
+                            <td class="font-mono text-xs">{{ item.sku }}</td>
+                            <td class="font-medium">{{ item.name }}</td>
+                            <td>{{ item.category or '—' }}</td>
+                            <td>{{ item.quantity }}</td>
+                            <td>{{ item.unit }}</td>
+                            <td><span class="badge badge-{{ item.stock_status }}">{{ item.stock_status | replace('_',' ') | title }}</span></td>
+                            <td class="flex gap-2">
+                                <button onclick="openEditInventory({{ item.id }}, '{{ item.name }}', '{{ item.category }}', {{ item.quantity }}, '{{ item.unit }}', {{ item.weight_per_unit }}, {{ item.min_stock_level }}, {{ item.max_stock_level }}, {{ item.reorder_point }})" class="text-gray-400 hover:text-brand-600"><i class="fas fa-edit"></i></button>
+                                <form method="POST" action="{{ url_for('inventory_delete', item_id=item.id) }}" onsubmit="return confirm('Delete this item?')">
+                                    <button class="text-gray-400 hover:text-red-600"><i class="fas fa-trash"></i></button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="7" class="text-center py-8 text-gray-400">No inventory items</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Capacity Overview</h3>
+            <div class="text-center mb-4">
+                <p class="text-4xl font-bold {% if warehouse.occupancy_pct > 90 %}text-red-600{% elif warehouse.occupancy_pct > 70 %}text-amber-600{% else %}text-brand-600{% endif %}">{{ warehouse.occupancy_pct }}%</p>
+                <p class="text-xs text-gray-400 mt-1">{{ warehouse.current_occupancy }} / {{ warehouse.capacity }} units</p>
+            </div>
+            <div class="w-full bg-gray-100 rounded-full h-3">
+                <div class="h-3 rounded-full transition-all {% if warehouse.occupancy_pct > 90 %}bg-red-500{% elif warehouse.occupancy_pct > 70 %}bg-amber-500{% else %}bg-brand-500{% endif %}" style="width: {{ [warehouse.occupancy_pct, 100] | min }}%"></div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-5">
+            <h3 class="text-sm font-semibold text-gray-700 mb-3">Contact</h3>
+            <dl class="space-y-2 text-sm">
+                <div>
+                    <dt class="text-gray-400 text-xs">Manager</dt>
+                    <dd class="text-gray-800">{{ warehouse.manager_name or '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-400 text-xs">Email</dt>
+                    <dd class="text-gray-800">{{ warehouse.manager_email or '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-400 text-xs">Phone</dt>
+                    <dd class="text-gray-800">{{ warehouse.phone or '—' }}</dd>
+                </div>
+                <div>
+                    <dt class="text-gray-400 text-xs">Address</dt>
+                    <dd class="text-gray-800">{{ warehouse.address }}<br>{{ warehouse.city }}, {{ warehouse.state }} {{ warehouse.zip_code }}</dd>
+                </div>
+            </dl>
+        </div>
+    </div>
+</div>
+
+<!-- Add Inventory Modal -->
+<div id="addInventoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4">
+        <form method="POST" action="{{ url_for('inventory_add', warehouse_id=warehouse.id) }}">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Add Inventory Item</h2>
+                <button type="button" onclick="document.getElementById('addInventoryModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">SKU *</label>
+                    <input type="text" name="sku" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Name *</label>
+                    <input type="text" name="name" required class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Category</label>
+                    <input type="text" name="category" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Quantity</label>
+                    <input type="number" name="quantity" value="0" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Unit</label>
+                    <input type="text" name="unit" value="units" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Weight/Unit (kg)</label>
+                    <input type="number" step="0.01" name="weight_per_unit" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Min Stock</label>
+                    <input type="number" name="min_stock_level" value="10" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Max Stock</label>
+                    <input type="number" name="max_stock_level" value="1000" class="form-input">
+                </div>
+                <div class="col-span-2">
+                    <label class="form-label">Reorder Point</label>
+                    <input type="number" name="reorder_point" value="50" class="form-input">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('addInventoryModal').classList.add('hidden')" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Add</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Edit Inventory Modal -->
+<div id="editInventoryModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg mx-4">
+        <form id="editInventoryForm" method="POST">
+            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+                <h2 class="text-lg font-semibold text-gray-900">Edit Inventory Item</h2>
+                <button type="button" onclick="document.getElementById('editInventoryModal').classList.add('hidden')" class="text-gray-400 hover:text-gray-600"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="p-6 grid grid-cols-2 gap-4">
+                <div>
+                    <label class="form-label">Name</label>
+                    <input type="text" id="edit_name" name="name" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Category</label>
+                    <input type="text" id="edit_category" name="category" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Quantity</label>
+                    <input type="number" id="edit_quantity" name="quantity" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Unit</label>
+                    <input type="text" id="edit_unit" name="unit" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Weight/Unit (kg)</label>
+                    <input type="number" step="0.01" id="edit_weight" name="weight_per_unit" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Min Stock</label>
+                    <input type="number" id="edit_min" name="min_stock_level" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Max Stock</label>
+                    <input type="number" id="edit_max" name="max_stock_level" class="form-input">
+                </div>
+                <div>
+                    <label class="form-label">Reorder Point</label>
+                    <input type="number" id="edit_reorder" name="reorder_point" class="form-input">
+                </div>
+            </div>
+            <div class="px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
+                <button type="button" onclick="document.getElementById('editInventoryModal').classList.add('hidden')" class="btn btn-secondary">Cancel</button>
+                <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function openEditInventory(id, name, category, quantity, unit, weight, min, max, reorder) {
+    document.getElementById('editInventoryForm').action = '/inventory/' + id + '/update';
+    document.getElementById('edit_name').value = name;
+    document.getElementById('edit_category').value = category;
+    document.getElementById('edit_quantity').value = quantity;
+    document.getElementById('edit_unit').value = unit;
+    document.getElementById('edit_weight').value = weight;
+    document.getElementById('edit_min').value = min;
+    document.getElementById('edit_max').value = max;
+    document.getElementById('edit_reorder').value = reorder;
+    document.getElementById('editInventoryModal').classList.remove('hidden');
+}
+</script>
+{% endblock %}
